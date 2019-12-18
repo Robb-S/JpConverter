@@ -15,4 +15,4 @@ How to use:
 - download the zip file (https://github.com/Robb-S/JpConverter/blob/master/jpconverter.zip ), unzip to find one .exe file, double click on the .exe file.
 
 
-This software is also available as an Android app in the Play Store: https://play.google.com/store/apps/details?id=com.jingumae.jpconverter
+This app is also available in an Android version in the Play Store: https://play.google.com/store/apps/details?id=com.jingumae.jpconverter
