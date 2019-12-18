@@ -1,6 +1,6 @@
-JpConverter Windows executable
+# JpConverter Windows executable
 
-A guide to Japanese measures and the Japanese calendar
+## A guide to Japanese measures and the Japanese calendar
 
 Designed specifically for foreigners living in Japan, this simple Windows app provides quick help converting Japanese calendar years and common units of measurement. Calculate and convert:
 
