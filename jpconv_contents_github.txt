@@ -1,0 +1,22 @@
+JpConverter Windows executable
+
+Github Files
+
+[documentation]
+- readme.txt - brief explanation of project
+- jpconverter.zip - Windows executable
+- cpconv_dev_doc.txt - notes on how to set up a development environment
+- jpconv_contents_github - (this file) list of files at GitHub
+
+[code and dev]
+- jpconverter03.py - creates executable main window, provides UI
+- jpconvhelper.py - helper functions fo stylesheets, etc.
+- jpconverter02.py - test version for faster testing of UI file changes
+- converters.py - class of all measurement converters
+- converter.py - class of one measurement converter
+- yearconverter.py - class of year converters and zodiac converter
+- uimainwindow3.py - python version of UI file (made by pyside2-uic)
+- main3.ui - UI file made by QT designer
+- 256jpconverter.ico - icon file
+
+
