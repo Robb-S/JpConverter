@@ -1,6 +1,6 @@
-JpConverter Windows executable
+# JpConverter Windows executable
 
-A guide to Japanese measures and the Japanese calendar
+## A tool for Japanese measures and the Japanese calendar
 
 Designed specifically for foreigners living in Japan, this simple Windows app provides quick help converting Japanese calendar years and common units of measurement. Calculate and convert:
 
@@ -12,9 +12,7 @@ Designed specifically for foreigners living in Japan, this simple Windows app pr
 
 How to use:
 
-- download the zip file, unzip to find one .ex.e file, double click on the .exe file.
+- download the zip file (https://github.com/Robb-S/JpConverter/blob/master/jpconverter.zip ), unzip to find one .exe file, double click on the .exe file.
 
 
-This software is also available as an Android app in the Play Store: https://play.google.com/store/apps/details?id=com.jingumae.jpconverter
-
-
+This app is also available in an Android version in the Play Store: https://play.google.com/store/apps/details?id=com.jingumae.jpconverter
