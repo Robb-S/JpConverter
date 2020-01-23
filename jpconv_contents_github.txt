@@ -6,7 +6,7 @@ Github Files
 - readme.txt - brief explanation of project
 - jpconverter.zip - Windows executable
 - cpconv_dev_doc.txt - notes on how to set up a development environment
-- jpconv_contents_github - (this file) list of files at GitHub
+- jpconv_contents_github.txt - (this file) list of files at GitHub
 
 [code and dev]
 - jpconverter03.py - creates executable main window, provides UI

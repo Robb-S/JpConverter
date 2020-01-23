@@ -11,6 +11,7 @@ from converters import *
 from yearconverter import *
 from ui_mainwindow2 import Ui_MainWindow2
 from ui_mainwindow3 import Ui_MainWindow3
+''' this version is for deployment, and uses a .py version of the UI file created by QT Designer ''' 
 
 theUIFileName = 'main3.ui'                              # specify which UI file is being used
 class MainWindow(QMainWindow):
@@ -256,6 +257,7 @@ class MainWindow(QMainWindow):
         self.layoutConv = QVBoxLayout(content_widget)           
         self.layoutConv.setAlignment(Qt.AlignTop)           # don't evenly space the radio buttons, but start at the top
         self.instructions1 = self.findChild(QLabel, 'label_instructions1')
+        self.instructions2 = self.window.findChild(QLabel, 'label_instructions2')       
         self.menuExit = self.findChild(QAction, 'action_exit')
         self.menuFromMetric = self.findChild(QAction, 'action_from_metric')
         self.menuToMetric = self.findChild(QAction, 'action_to_metric')

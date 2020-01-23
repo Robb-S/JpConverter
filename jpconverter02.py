@@ -1,5 +1,4 @@
 import sys
-#from html.parser import HTMLParser
 from PySide2 import QtXml
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QPushButton, QLineEdit, QLabel, QWidget, QRadioButton, QVBoxLayout
@@ -9,15 +8,17 @@ from PySide2.QtGui import QIntValidator, QDoubleValidator
 from jpconvhelper import makeHeader1, makeStyleSheet, strToNum, getMenuStyle
 from converters import *
 from yearconverter import *
+from messages import *
 
 #import os
-#print ("** current directory: ", os.getcwd())          # see where to put UI files during development
+#print ("** current directory: ", os.getcwd())          # figure out where to put UI files during development
 theUIFileName = 'main3.ui'
+''' this version is for quick development, and uses the UI file made directly from QT Designer '''
 
 class Form(QObject): 
     ''' properties: self.themode (e.g. "zodiac", "start"), self.theConvCode (current conversion code),
         form elements (e.g. self.input1, self.btnZodiac), element left- and right-column start positions
-        self.convs (Converters object for main unit conversions) '''
+        self.convs (Converters object for main unit conversions), self.mess - messages to display '''
     def __init__(self, ui_file, parent=None):           
         super(Form, self).__init__(parent)
         #print ("uifile: " , ui_file)
@@ -29,6 +30,7 @@ class Form(QObject):
         uiFile.close() 
         self.convs = Converters()                       # load converters for main conversion categories
         self.yc = YearConverters()                      # load converters for japanese years, zodiac years
+        self.mess = Mess()                              # instructions and messages in local language
         self.getParts()                                 # identify form objects
         self.connectParts()                             # connect buttons to operations
         self.setUpFormUI()                              # x,y positions for left and right columns if form==main1.ui
@@ -42,6 +44,7 @@ class Form(QObject):
         self.header1.setStyleSheet(thestyle)                            # can have different background colors
         self.header1.setText(thetext)
         self.header1.show()
+        self.hideBigInstructions()
         if themode in self.convs.getValidConvTypes():                       # set up radio buttons for conversions
             oneConvTypeInfo = self.convs.convTypeToConvInfo(themode)        # get convCodes, displays for this convType
             for ix, (convCode, convDisplay) in enumerate(oneConvTypeInfo):  # iterate through enumerated list of tuples
@@ -58,17 +61,26 @@ class Form(QObject):
             self.fromjpyearmode = "all"                                     # start with modern eras only
             self.showJpEras()
         if themode=="tojpyear":                                             # no choices, go straight to input box
-            self.showInstructions(self.tojpyear_instr, "")
+            self.showInstructions(self.mess.getToJpYear(self.yc.getMinYear()), "")
             self.input1.setText(str(self.yc.getNowYear()))                  # start with current year
             self.setUpValidator()            
             self.convertUnits()
         if themode=="zodiac":                                               # no choices, go straight to input box
-            self.showInstructions(self.zodiac_instr, "")
+            self.showInstructions(self.mess.getEnterYearZodiac(), "")
             self.input1.setText(str(self.yc.getNowYear()))                  # start with current year            
             self.setUpValidator()            
             self.convertUnits()
-        if themode=="start": self.btnFromMetric.setFocus()  
-        #print(QApplication.focusWidget())                                  # testing
+        if themode=="start": 
+            self.btnFromMetric.setFocus()  
+            self.showBigInstructions(themode)
+
+    def showBigInstructions(self, themode):
+        if themode=="start": 
+            self.instructions2.setText(self.mess.getStartMsg2())
+        self.scrollArea.hide()
+
+    def hideBigInstructions(self):
+        self.scrollArea.show()
 
     def showJpEras(self):                                                   # display radio buttons for Japanese eras
         jpEraList = self.yc.getEraNamesPlusCodes(self.fromjpyearmode)       # modern or all
@@ -100,21 +112,21 @@ class Form(QObject):
             self.chosenEra = theEra                 # set this property
             if self.yc.getNowEra() == theEra: theHint = "(1- )"                 # no final year if it's the current era
             else: theHint = "(1-{})".format(self.yc.getNumYears(theEra))        # final year in that era
-            self.showInstructions(self.fromjpyear_instr.format(self.yc.getENameUnparsed(theEra)), theHint)   # use era name
+            self.showInstructions(self.mess.getFromJpYear(self.yc.getENameUnparsed(theEra)), theHint)
             self.output2.hide()
             self.setUpValidator()
 
     def setUpValidator(self):
-        if self.themode in self.convs.getValidConvTypes():             # measures
+        if self.themode in self.convs.getValidConvTypes():              # measures
             if self.convs.isTempConv(self.theConvCode): self.validFloat.setBottom(-460)    # temperatures can be negative
-            else: self.validFloat.setBottom(0.0)
+            else: self.validFloat.setBottom(0.0)                        # other measures can't be negative
             self.input1.setValidator(self.validFloat)  
         if self.themode in ["fromjpyear","fromjpyearhistoric", "tojpyear", "zodiac"]:
             self.input1.setValidator(self.validYear)        # range already set to 1-9999
 
     def convSetup(self):                                    # set up based on which radio button was set
         self.theConvCode = self.getCodeFromSenderName()     # get the code based on the sending button, and set it
-        self.showInstructions(self.enteramt_instr)
+        self.showInstructions(self.mess.getEnterAmt())
         self.setUpValidator()
         self.input1.setText("1")                            # show units=1 to start
         self.convertUnits()
@@ -124,47 +136,40 @@ class Form(QObject):
         return str(sending_button.objectName()).replace("object_", "")
 
     def convertUnits(self):                                 # main conversion routine
+        pstart = self.mess.getPstart()                      # get paragraph HTML from Message object
+        pstopstart = self.mess.getPstopstart()
+        pstop = self.mess.getPstop()
         if len(self.input1.text())<1:                       # test for blank input
-            self.output2.setText(self.blankConvertMsg)      # show error message
+            self.output2.setText(self.mess.getBlankConvertMsg())      # show error message
             self.output2.show()
             return
         if self.themode in self.convs.getValidConvTypes():  # standard conversions: fromjpmeasure, tometric, etc   
             amt1Text = self.input1.text()
             amt1 = strToNum(amt1Text)                
-            eqString = self.convs.getEquation(self.theConvCode, amt1, " =" + self.pstopstart)   # paragraph break after =
-            self.output2.setText(self.pstart + eqString + self.pstop)   # use paragraphs for better control of appearance
+            eqString = self.convs.getEquation(self.theConvCode, amt1, " =" + pstopstart)   # paragraph break after =
+            self.output2.setText(pstart + eqString + pstop)   # use paragraphs for better control of appearance
         elif self.themode=="tojpyear":                                  # int'l year to Japanese year
             try:
                 iYear = int(self.input1.text())
-                yearDisplay = self.makeJYearDisplay(self.yc.iYearToJYear(iYear), iYear)
+                yearDisplay = self.mess.makeJYearDisplay(self.yc.iYearToJYear(iYear), iYear)
             except ValueError as errorMsg:
-                yearDisplay = self.pstart + str(errorMsg) + self.pstop  # display the error message
+                yearDisplay = pstart + str(errorMsg) + pstop  # display the error message
             self.output2.setText(yearDisplay)
         elif self.themode in ["fromjpyear", "fromjpyearhistoric"]:      # Japanese year to int'l year
             jYear = int(self.input1.text())                             # validator at work, so this should be an integer
             try:                                                        # raise exception if not in range
                 iYear = self.yc.jYearToIYear(self.chosenEra, jYear)
-                yearDisplay = self.pstart +  "{} ({}) {}".format(self.yc.getENameUnparsed(self.chosenEra), \
-                    self.yc.getJName(self.chosenEra), jYear) + self.pstopstart + "is " + str(iYear) + self.pstop
+                yearDisplay = pstart +  "{} ({}) {}".format(self.yc.getENameUnparsed(self.chosenEra), \
+                    self.yc.getJName(self.chosenEra), jYear) + pstopstart + self.mess.getIs() + " " + str(iYear) + pstop
             except ValueError as errorMsg:
-                yearDisplay = self.pstart + str(errorMsg) + self.pstop  # display the error message
+                yearDisplay = pstart + str(errorMsg) + pstop  # display the error message
             self.output2.setText(yearDisplay)
         elif self.themode=="zodiac":                                    # international year to zodiac sign
             iYear = int(self.input1.text())
-            yearDisplay = self.pstart + str(iYear) + " is:" + self.pstopstart + \
-                self.yc.getZodEJZNames(iYear) + self.pstop
+            yearDisplay = pstart + str(iYear) + " " + self.mess.getIs() + ":" + pstopstart + \
+                self.yc.getZodEJZNames(iYear) + pstop
             self.output2.setText(yearDisplay)
         self.output2.show()                                             # common to all conversion types
-
-    def makeJYearDisplay(self, listOfJYearTuples, iYear):   # this may be have multiple Japanese era years
-        if len(listOfJYearTuples) == 0: return ("Could not parse date: " + str(iYear))  # temporary
-        ansDisp = str(iYear) + " is: "
-        lineNum = 1
-        for eName, jName, eraYear in listOfJYearTuples:
-            if lineNum>1: ansDisp += self.pstopstart + "and "           # for two-line answers, insert a paragraph break
-            ansDisp += eName + " (" + jName + ") " + str(eraYear)       # e.g. 1989 is Showa 64 and Heisei 1 
-            lineNum +=1 
-        return self.pstart + ansDisp + self.pstop       # need to use paragraphs for proper line height control
 
     def emptyConvLayout(self):                                  # clear the radio buttons in the converter/jpYear layout
         for i in reversed(range(self.layoutConv.count())):      # delete them in reverse order
@@ -176,10 +181,6 @@ class Form(QObject):
         self.output2.hide()                                     # conversion not chosen yet, so hide this
 
     def showInstructions(self, instructionsText, inputHint=""):     # position UI elements, set label, show input box
-        if self.uiFileName=="main1.ui":
-            if self.themode in ["tojpyear", "zodiac"]: self.moveElements("left")
-            elif self.themode in ["fromjpyear", "fromjpyearhistoric"]: self.moveElements("moreright")
-            else: self.moveElements("right")
         self.instructions1.setText(instructionsText)
         self.instructions1.show()    
         self.input1.setText("")  
@@ -198,45 +199,7 @@ class Form(QObject):
         self.validFloat = QDoubleValidator()
         self.validYear = QIntValidator()
         self.validYear.setRange(1,9999)                 # used for years       
-        if self.uiFileName == "main1.ui": 
-            self.instructions1Left = QPoint(280,75)         # used for moving around widgets in main1.ui form
-            self.instructions1Right = QPoint(540,75)
-            self.instructions1MoreRight = QPoint(570,75)
-            self.input1Left = QPoint(280,125)
-            self.input1Right = QPoint(540,125)
-            self.input1MoreRight = QPoint(570,125)
-            self.convertLeft = QPoint(280,195)
-            self.convertRight =  QPoint(540,195)
-            self.convertMoreRight = QPoint(570,195)
-            self.output2Left = QPoint(280,260)
-            self.output2Right = QPoint(540,260)
-            self.output2MoreRight = QPoint(570,260)
-        self.tojpyear_instr = "Enter int'l year ({}-present)".format(self.yc.getMinYear())
-        self.fromjpyear_instr = "Enter year from {} era"      # era name will be inserted later
-        self.zodiac_instr = "Enter year (1-9999)"
-        self.enteramt_instr = "Enter amount to convert"
-        self.pstart = '<p style="line-height:120%; margin:0; padding:0;">'
-        self.pstopstart = '</p><p style="line-height:120%; margin:0; padding:0;">'
-        self.pstop = '</p>'
-        self.blankConvertMsg = "Please enter a value"
         self.btnConvert.hide()
-
-    def moveElements(self, layoutStyle):
-        if layoutStyle=="left":
-            self.instructions1.move(self.instructions1Left)
-            self.input1.move(self.input1Left)
-            self.output2.move(self.output2Left)
-            self.btnConvert.move(self.convertLeft)
-        elif layoutStyle=="moreright":
-            self.instructions1.move(self.instructions1MoreRight)
-            self.input1.move(self.input1MoreRight)
-            self.output2.move(self.output2MoreRight)
-            self.btnConvert.move(self.convertMoreRight)
-        else:   #right
-            self.instructions1.move(self.instructions1Right)
-            self.input1.move(self.input1Right)
-            self.output2.move(self.output2Right)
-            self.btnConvert.move(self.convertRight)
 
     def getParts(self):                                                     # map form elements to object properties
         self.centralw = self.window.findChild(QWidget, 'central_widget')
@@ -259,6 +222,7 @@ class Form(QObject):
         self.layoutConv = QVBoxLayout(content_widget)           
         self.layoutConv.setAlignment(Qt.AlignTop)           # don't evenly space the radio buttons, but start at the top
         self.instructions1 = self.window.findChild(QLabel, 'label_instructions1')
+        self.instructions2 = self.window.findChild(QLabel, 'label_instructions2')        
         self.menuExit = self.window.findChild(QAction, 'action_exit')
         self.menuFromMetric = self.window.findChild(QAction, 'action_from_metric')
         self.menuToMetric = self.window.findChild(QAction, 'action_to_metric')
@@ -269,7 +233,7 @@ class Form(QObject):
         self.menuToJpYear = self.window.findChild(QAction, 'action_to_jpyear')
         self.menuZodiac = self.window.findChild(QAction, 'action_zodiac')
         self.menubar = self.window.findChild(QMenuBar, 'menubar')
-        if self.uiFileName=="main3.ui": self.menubar.setStyleSheet(getMenuStyle("main3.ui"))
+        if self.uiFileName=="main3.ui": self.menubar.setStyleSheet(getMenuStyle("main3.ui"))    # in jpconvhelper.py
 
     def connectParts(self):             # connect buttons and menu actions to operations
         self.input1.returnPressed.connect(self.convertUnits)

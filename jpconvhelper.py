@@ -16,15 +16,21 @@ def makeHeader1(themode, theui="main2.ui"):
         if themode=="start": backgroundColor = "#222222"
         elif themode=="frommetric": backgroundColor = "#00600f"
         elif themode=="tometric": backgroundColor = "#087f23"
-        elif themode=="fromjpmeasure": backgroundColor = "#001970"
-        elif themode=="tojpmeasure": backgroundColor = "#26418f"
-        elif themode=="fromjpyear": backgroundColor = "#c43e00"
-        elif themode=="fromjpyearhistoric": backgroundColor = "#c43e00"
-        elif themode=="tojpyear": backgroundColor = "#c56000"
-        elif themode=="zodiac": backgroundColor = "#a00037"
+        elif themode=="fromjpmeasure": backgroundColor = "#00600f"
+        elif themode=="tojpmeasure": backgroundColor = "#087f23"
+        elif themode=="fromjpyear": backgroundColor = "#00600f"
+        elif themode=="fromjpyearhistoric": backgroundColor = "#00600f"
+        elif themode=="tojpyear": backgroundColor = "#087f23"
+        elif themode=="zodiac": backgroundColor = "#00600f"
+        # elif themode=="fromjpmeasure": backgroundColor = "#001970"
+        # elif themode=="tojpmeasure": backgroundColor = "#26418f"
+        # elif themode=="fromjpyear": backgroundColor = "#c43e00"
+        # elif themode=="fromjpyearhistoric": backgroundColor = "#c43e00"
+        # elif themode=="tojpyear": backgroundColor = "#c56000"
+        # elif themode=="zodiac": backgroundColor = "#a00037"
         else: backgroundColor = "#3e3e3e"
-        thestyle = "padding: 0 4px 0 10px;color:#eeeeee;font-weight:bold;font-size:22px;"+\
-            "border-style: solid; border-color: #aaaaaa; border-width: 0 2px 2px 0;"+\
+        thestyle = "padding: 0 4px 0 10px;color:#eeeeee;font-weight:bold;font-size:21px;"+\
+            "border-style: solid; border-color: #bbbbbb; border-width: 1px;"+\
             "background-color:{};".format(backgroundColor)
     thetext = titles[themode]
     return thetext, thestyle

@@ -20,7 +20,7 @@ class YearConverters(object):
     def loadJYears(self):
         self.yDict = {}
         self.jYearTuples = [         # utf-8 and html encoding
-            ("reiwa", "Reiwa", "霊和", 2019, 0),
+            ("reiwa", "Reiwa", "令和", 2019, 0),
             ("heisei", "Heisei", "平成", 1989, 2019),	
             ("showa", "Sh&#333;wa", "昭和", 1926, 1989),
             ("taisho", "Taish&#333;", "大正", 1912, 1926),
