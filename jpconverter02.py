@@ -9,7 +9,7 @@ from jpconvhelper import makeHeader1, makeStyleSheet, strToNum, getMenuStyle
 from converters import *
 from yearconverter import *
 from messages import *
-from ui_mainwindow3 import Ui_MainWindow3               # used for deployment version only
+from ui_mainwindow3 import Ui_MainWindow3               # used for deployment version
 
 #import os
 #print ("** current directory: ", os.getcwd())          # use this to figure out where to put UI files during development
@@ -17,27 +17,38 @@ theUIFileName = 'main3.ui'
 devMode = "development"     # quick development, using UI file made directly from QT Designer
 #devMode = "deployment"     # deployment version, using a .py version of the UI file 
 
-class Form(QObject): 
-    def __init__(self, ui_file, parent=None):           
-        super(Form, self).__init__(parent)
+class MainWindow(QMainWindow):
+    def __init__(self, ui_file, devMode, parent=None):       
+        super(MainWindow, self).__init__()    
+        #super(Form, self).__init__(parent)
         #print ("uifile: " , ui_file)
-        self.uiFileName = ui_file
-        uiFile = QFile(ui_file)
-        uiFile.open(QFile.ReadOnly)                     # read in UI for the form
-        loader = QUiLoader()
-        self.window = loader.load(uiFile)
-        uiFile.close() 
+        if devMode == "development":
+            self.uiFileName = ui_file
+            uiFile = QFile(ui_file)
+            uiFile.open(QFile.ReadOnly)                     # read in UI for the form
+            loader = QUiLoader()
+            self.window = loader.load(uiFile)
+            uiFile.close() 
+            self.getParts()                                 # identify form objects
+        else: #deployment
+            self.ui = Ui_MainWindow3()
+            self.ui.setupUi(self)
+            self.uiFileName = ui_file                       # current ui file, specified in initialization
+            self.getParts2()                                # identify form objects
         self.doInitialSetup()
 
     def doInitialSetup(self):
         self.convs = Converters()                       # load converters for main conversion categories
         self.yc = YearConverters()                      # load converters for japanese years, zodiac years
         self.mess = Mess()                              # instructions and messages in local language
-        self.getParts()                                 # identify form objects
         self.connectParts()                             # connect buttons to operations
-        self.setUpFormUI()                              # x,y positions for left and right columns if form==main1.ui
+        self.validFloat = QDoubleValidator()
+        self.validYear = QIntValidator()
+        self.validYear.setRange(1,9999)                 # used for years       
+        self.btnConvert.hide()
         self.widgetSetup("start")                       # initial conditions for form
-        self.window.show()
+        if devMode == "development": self.window.show()
+        else: self.show()
 
     def widgetSetup(self, themode):     # based on which main button is pressed
         self.themode = themode          # this is set when a main button is pressed, or on initial load
@@ -80,9 +91,11 @@ class Form(QObject):
         if themode=="start": 
             self.instructions2.setText(self.mess.getStartMsg2())
         self.scrollArea.hide()
+        self.instructions2.show()
 
     def hideBigInstructions(self):
         self.scrollArea.show()
+        self.instructions2.hide()
 
     def showJpEras(self):                                                   # display radio buttons for Japanese eras
         jpEraList = self.yc.getEraNamesPlusCodes(self.fromjpyearmode)       # modern or all
@@ -201,12 +214,6 @@ class Form(QObject):
         amtString = '{} kilograms'.format(amt)
         self.output2.setText(amtString)
 
-    def setUpFormUI(self):  # set labels, positions of widgets, validators
-        self.validFloat = QDoubleValidator()
-        self.validYear = QIntValidator()
-        self.validYear.setRange(1,9999)                 # used for years       
-        self.btnConvert.hide()
-
     def getParts(self):                                                     # map form elements to object properties
         self.centralw = self.window.findChild(QWidget, 'central_widget')
         self.input1 = self.window.findChild(QLineEdit, 'input1')
@@ -241,6 +248,40 @@ class Form(QObject):
         self.menubar = self.window.findChild(QMenuBar, 'menubar')
         if self.uiFileName=="main3.ui": self.menubar.setStyleSheet(getMenuStyle("main3.ui"))    # in jpconvhelper.py
 
+    def getParts2(self):  # for when pyside2-uic created the UI. Messy, but the easiest way to combine dev and deployment code
+        self.centralw = self.findChild(QWidget, 'central_widget')
+        self.input1 = self.findChild(QLineEdit, 'input1')
+        self.output2 = self.findChild(QTextEdit, 'label_output2')
+        self.header1 = self.findChild(QLabel, 'label_header1')
+        self.btnConvert = self.findChild(QPushButton, 'button_convert')
+        self.btnExit = self.findChild(QPushButton, 'button_exit')
+        self.btnFromMetric = self.findChild(QPushButton, 'button_from_metric')
+        self.btnToMetric = self.findChild(QPushButton, 'button_to_metric')
+        self.btnFromJpMeasure = self.findChild(QPushButton, 'button_from_jpmeasure')
+        self.btnToJpMeasure = self.findChild(QPushButton, 'button_to_jpmeasure')
+        self.btnFromJpYear = self.findChild(QPushButton, 'button_from_jpyear')
+        self.btnToJpYear = self.findChild(QPushButton, 'button_to_jpyear')
+        self.btnZodiac = self.findChild(QPushButton, 'button_zodiac')
+        self.scrollArea = self.findChild(QScrollArea, 'conv_layout')     
+        content_widget = QWidget()                          # now add the QVBoxLayout widget programmatically, for scrolling
+        self.scrollArea.setWidget(content_widget)
+        self.scrollArea.setWidgetResizable(True)
+        self.layoutConv = QVBoxLayout(content_widget)           
+        self.layoutConv.setAlignment(Qt.AlignTop)           # don't evenly space the radio buttons, but start at the top
+        self.instructions1 = self.findChild(QLabel, 'label_instructions1')
+        self.instructions2 = self.findChild(QLabel, 'label_instructions2')        
+        self.menuExit = self.findChild(QAction, 'action_exit')
+        self.menuFromMetric = self.findChild(QAction, 'action_from_metric')
+        self.menuToMetric = self.findChild(QAction, 'action_to_metric')
+        self.menuFromJpMeasure = self.findChild(QAction, 'action_from_jpmeasure')
+        self.menuToJpMeasure = self.findChild(QAction, 'action_to_jpmeasure')
+        self.menuFromJpYear = self.findChild(QAction, 'action_from_jpyear')
+        self.menuFromJpYearHistoric = self.findChild(QAction, 'action_from_jpyear_historic')
+        self.menuToJpYear = self.findChild(QAction, 'action_to_jpyear')
+        self.menuZodiac = self.findChild(QAction, 'action_zodiac')
+        self.menubar = self.findChild(QMenuBar, 'menubar')
+        if self.uiFileName=="main3.ui": self.menubar.setStyleSheet(getMenuStyle("main3.ui"))    # in jpconvhelper.py
+
     def connectParts(self):             # connect buttons and menu actions to operations
         self.input1.returnPressed.connect(self.convertUnits)
         self.btnConvert.clicked.connect(self.convertUnits)
@@ -268,5 +309,6 @@ class Form(QObject):
 if __name__ == '__main__':
     QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)        # suppresses error message on laptop python console
     app = QApplication(sys.argv)
-    form = Form(theUIFileName)
+    #form = Form(theUIFileName)
+    window = MainWindow(theUIFileName, devMode)
     sys.exit(app.exec_())
