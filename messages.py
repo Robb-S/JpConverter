@@ -1,7 +1,7 @@
 class Mess(object):
     ''' container for label text and other messages in local language  '''
     def __init__(self):
-        paraTemp =  '<p style="line-height:1.3;">{}</p>'       # template for text paragraphs with adequate line height
+        paraTemp =  '<p style="line-height:1.3; margin:0; padding:0;">{}</p>'   # template for paragraphs with line height
         self.language = "E"
         self.kanjiColor = "#ffea00"
         self.enterAmt = "Enter amount to convert"
@@ -29,6 +29,7 @@ class Mess(object):
     def getPstart(self): return self.pstart
     def getStartMsg2(self): return self.startMsg2
     def getIs(self): return self.theWordIs
+    def getJColor(self): return self.kanjiColor
 
     def makeJYearDisplay(self, listOfJYearTuples, iYear):   # this may be have multiple Japanese era years
         if len(listOfJYearTuples) == 0: return self.mess.getCouldNotParse(str(iYear))  # does this ever happen?  

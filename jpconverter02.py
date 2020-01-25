@@ -2,23 +2,22 @@ import sys
 from PySide2 import QtXml
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QPushButton, QLineEdit, QLabel, QWidget, QRadioButton, QVBoxLayout
-from PySide2.QtWidgets import QTextEdit, QScrollArea, QAction, QMenuBar
+from PySide2.QtWidgets import QTextEdit, QScrollArea, QAction, QMainWindow, QMenuBar
 from PySide2.QtCore import QFile, QObject, Qt, QPoint, QCoreApplication
 from PySide2.QtGui import QIntValidator, QDoubleValidator
 from jpconvhelper import makeHeader1, makeStyleSheet, strToNum, getMenuStyle
 from converters import *
 from yearconverter import *
 from messages import *
+from ui_mainwindow3 import Ui_MainWindow3               # used for deployment version only
 
 #import os
-#print ("** current directory: ", os.getcwd())          # figure out where to put UI files during development
+#print ("** current directory: ", os.getcwd())          # use this to figure out where to put UI files during development
 theUIFileName = 'main3.ui'
-''' this version is for quick development, and uses the UI file made directly from QT Designer '''
+devMode = "development"     # quick development, using UI file made directly from QT Designer
+#devMode = "deployment"     # deployment version, using a .py version of the UI file 
 
 class Form(QObject): 
-    ''' properties: self.themode (e.g. "zodiac", "start"), self.theConvCode (current conversion code),
-        form elements (e.g. self.input1, self.btnZodiac), element left- and right-column start positions
-        self.convs (Converters object for main unit conversions), self.mess - messages to display '''
     def __init__(self, ui_file, parent=None):           
         super(Form, self).__init__(parent)
         #print ("uifile: " , ui_file)
@@ -28,6 +27,9 @@ class Form(QObject):
         loader = QUiLoader()
         self.window = loader.load(uiFile)
         uiFile.close() 
+        self.doInitialSetup()
+
+    def doInitialSetup(self):
         self.convs = Converters()                       # load converters for main conversion categories
         self.yc = YearConverters()                      # load converters for japanese years, zodiac years
         self.mess = Mess()                              # instructions and messages in local language
@@ -151,24 +153,28 @@ class Form(QObject):
         elif self.themode=="tojpyear":                                  # int'l year to Japanese year
             try:
                 iYear = int(self.input1.text())
-                yearDisplay = self.mess.makeJYearDisplay(self.yc.iYearToJYear(iYear), iYear)
+                yearDisplay = self.mess.makeJYearDisplay(self.yc.iYearToJYear(iYear,self.mess.getJColor()), iYear)
             except ValueError as errorMsg:
                 yearDisplay = pstart + str(errorMsg) + pstop  # display the error message
             self.output2.setText(yearDisplay)
+            print (yearDisplay)
         elif self.themode in ["fromjpyear", "fromjpyearhistoric"]:      # Japanese year to int'l year
             jYear = int(self.input1.text())                             # validator at work, so this should be an integer
             try:                                                        # raise exception if not in range
                 iYear = self.yc.jYearToIYear(self.chosenEra, jYear)
                 yearDisplay = pstart +  "{} ({}) {}".format(self.yc.getENameUnparsed(self.chosenEra), \
-                    self.yc.getJName(self.chosenEra), jYear) + pstopstart + self.mess.getIs() + " " + str(iYear) + pstop
+                    self.yc.getJName(self.chosenEra, self.mess.getJColor()), jYear) + \
+                    pstopstart + self.mess.getIs() + " " + str(iYear) + pstop
             except ValueError as errorMsg:
                 yearDisplay = pstart + str(errorMsg) + pstop  # display the error message
             self.output2.setText(yearDisplay)
         elif self.themode=="zodiac":                                    # international year to zodiac sign
             iYear = int(self.input1.text())
+            # display is HTML with paragraph, line height, and Japanese characters in color (specified in Mess class)
             yearDisplay = pstart + str(iYear) + " " + self.mess.getIs() + ":" + pstopstart + \
-                self.yc.getZodEJZNames(iYear) + pstop
+                self.yc.getZodEJZNames(iYear, self.mess.getJColor()) + pstop
             self.output2.setText(yearDisplay)
+            #print (yearDisplay)
         self.output2.show()                                             # common to all conversion types
 
     def emptyConvLayout(self):                                  # clear the radio buttons in the converter/jpYear layout
