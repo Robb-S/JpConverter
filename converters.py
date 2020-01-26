@@ -21,35 +21,37 @@ class Converters(object):
         self.tempConvCodes = ["c2f", "f2c"] # these can use negative numbers
         convTuples = [
 			("c2f", "°C to °F", "°C", "", "°F", 0.0, 1, "frommetric"),
-			("km2mi", "kilometers to miles", "km", "", "miles", 0.621371, 2, "frommetric"),
+			("km2mi", "kilometers to miles", "kilometers", "kilometer", "miles", 0.621371, 2, "frommetric"),
 			("m2ft", "meters to feet", "meters", "meter", "feet", 3.28084, 3, "frommetric"),
-			("cm2in","centimeters to inches", "cm", "", "inches", 0.393701, 3, "frommetric"),
-			("sqm2sqft","square meters to square feet","sq meters","sq meter", "sq feet", 10.7640, 3, "frommetric"),
-			("kg2lb","kilograms to pounds", "kg","", "pounds", 2.2046, 3, "frommetric"),
-			("ml2oz","milliliters to fluid ounces", "ml", "", "fluid oz", 0.033814, 3, "frommetric"),
+			("cm2in","centimeters to inches", "centimeters", "centimeter", "inches", 0.393701, 3, "frommetric"),
+			("sqm2sqft","square meters to square feet","square meters","square meter", "square feet", 10.7640, 3, "frommetric"),
+			("kg2lb","kilograms to pounds", "kilograms","kilogram", "pounds", 2.2046, 3, "frommetric"),
+			("ml2oz","milliliters to fluid ounces", "milliliters", "milliliter", "fluid oz", 0.033814, 3, "frommetric"),
 			("f2c","°F to °C", "°F", "","°C", 0.0, 1, "tometric"),
 			("mi2km","miles to kilometers","miles", "mile", "km", 1.60934, 2, "tometric"),
 			("ft2m","feet to meters","feet","foot", "meters", 0.3048, 3, "tometric"),
 			("in2cm","inches to centimeters", "inches", "inch", "cm", 2.54, 3, "tometric"),
-			("sqft2sqm","square feet to square meters","sq feet", "sq foot", "sq meters", 0.0929, 3, "tometric"),
-			("lb2kg","pounds to kilograms", "pounds","pound", "kg", 0.45359, 3, "tometric"),
-			("oz2ml","fluid ounces to milliliters","fluid oz","","ml", 29.5735, 3, "tometric"),
-			("acre2tsubo", "acres to tsubo", "acres", "acre","tsubo", 1224.18, 2, "tojpmeasure"),
-			("sqm2tsubo", "square meters to tsubo", "sq. m", "","tsubo", 0.3025, 2, "tojpmeasure"),
-			("sqft2tsubo", "square feet to tsubo", "sq. ft.", "", "tsubo",  0.0281, 3, "tojpmeasure"),
-			("sqm2jo", "square meters to jo", "sq. m", "", "jo", 0.605, 2, "tojpmeasure"),
-			("sqft2jo", "square feet to jo", "sq. ft.", "", "jo",  0.0562, 3, "tojpmeasure"),
-			("tsubo2acre", "tsubo to acres", "tsubo", "", "acres", 0.0008169, 5, "fromjpmeasure"),
-			("tsubo2sqm", "tsubo to square meters", "tsubo", "", "sq. m", 3.3058, 2, "fromjpmeasure"),
-			("tsubo2sqft", "tsubo to square feet", "tsubo", "", "sq. ft.",  35.584, 2, "fromjpmeasure"),
-			("jo2sqm", "jo to square meters", "jo", "", "sq. m", 1.653, 2, "fromjpmeasure"),
-			("jo2sqft", "jo to square feet", "jo", "", "sq. ft.", 17.79, 2, "fromjpmeasure"),	
-			("go2floz", "go to fluid oz (sake)", "go", "", "fluid oz.", 6.1, 2, "fromjpmeasure"),	
-			("floz2go", "fluid oz to go (sake)", "fluid oz", "", "go", 0.1639, 3, "tojpmeasure"),	
-			("go2ml", "go to ml (sake)", "go", "", "ml", 180.4, 2, "fromjpmeasure"),
-			("ml2go", "ml to go (sake)", "ml", "", "go", 0.005544, 4, "tojpmeasure"),
-            ("sh2ml", "shaku to ml (sake)", "shaku", "", "ml", 18.04, 1, "fromjpmeasure"),
-			("ml2sh", "ml to shaku (sake)", "ml", "", "shaku", 0.05544, 3, "tojpmeasure"),
+			("sqft2sqm","square feet to square meters","square feet", "square foot", "sq meters", 0.0929, 3, "tometric"),
+			("lb2kg","pounds to kilograms", "pounds","pound", "kilograms", 0.45359, 3, "tometric"),
+			("oz2ml","fluid ounces to milliliters","fluid oz","","milliliters", 29.5735, 3, "tometric"),
+			("acre2tsubo", "acres to tsubo", "acres", "acre","tsubo", 1224.18, 2, "tojpmeasure", "坪"),
+			("sqm2tsubo", "square meters to tsubo", "square meters", "square meter","tsubo", 0.3025, 2, "tojpmeasure", "坪"),
+			("sqft2tsubo", "square feet to tsubo", "square feet", "square foot", "tsubo",  0.0281, 3, "tojpmeasure", "坪"),
+			("sqm2jo", "square meters to jo", "square meters", "square meter", "jo", 0.605, 2, "tojpmeasure", "畳"),
+			("sqft2jo", "square feet to jo", "square feet", "square foot", "jo",  0.0562, 3, "tojpmeasure", "畳"),
+			("tsubo2acre", "tsubo to acres", "tsubo", "", "acres", 0.0008169, 5, "fromjpmeasure", "坪"),
+			("tsubo2sqm", "tsubo to square meters", "tsubo", "", "square meters", 3.3058, 2, "fromjpmeasure", "坪"),
+			("tsubo2sqft", "tsubo to square feet", "tsubo", "", "square feet",  35.584, 2, "fromjpmeasure", "坪"),
+			("jo2sqm", "jo to square meters", "jo", "", "square meters", 1.653, 2, "fromjpmeasure", "畳"),
+			("jo2sqft", "jo to square feet", "jo", "", "square feet.", 17.79, 2, "fromjpmeasure", "畳"),	
+			("go2ml", "go to ml (sake)", "go", "", "ml", 180.4, 2, "fromjpmeasure", "合"),
+			("ml2go", "ml to go (sake)", "milliliters", "milliliter", "go", 0.005544, 4, "tojpmeasure", "合"),
+			("go2floz", "go to fluid oz (sake)", "go", "", "fluid oz.", 6.1, 2, "fromjpmeasure", "合"),	
+			("floz2go", "fluid oz to go (sake)", "fluid oz", "", "go", 0.1639, 3, "tojpmeasure", "合"),	
+            ("sh2ml", "shaku to ml (sake)", "shaku", "", "ml", 18.04, 1, "fromjpmeasure", "勺"),
+			("ml2sh", "ml to shaku (sake)", "milliliters", "milliliter", "shaku", 0.05544, 3, "tojpmeasure", "勺"),
+            ("sh2floz", "shaku to fluid oz (sake)", "shaku", "", "fluid oz", 0.61, 3, "fromjpmeasure", "勺"),
+			("floz2sh", "fluid oz to shaku (sake)", "fluid oz", "fluid oz", "shaku", 1.639, 3, "tojpmeasure", "勺"),
         ]
         for convTuple in convTuples:
             self.loadOneConverter(convTuple)                        # separate method so it can be used independently 
@@ -107,6 +109,9 @@ class Converters(object):
     def getAmt1StringUnits(self, convCode, amt1):
         try: return self.convDict[convCode].getAmt1StringUnits(amt1)
         except: return ""
-    def getEquation(self, convCode, amt1, eqstring=" = "):
-        try: return self.convDict[convCode].getEquation(amt1, eqstring)
+    def getEquation(self, convCode, amt1, eqstring=" = ", thecolor = ""):
+        try: return self.convDict[convCode].getEquation(amt1, eqstring, thecolor)
+        except: return ""
+    def getUnitKanji(self, convCode):
+        try: return self.convDict[convCode].getUnitKanji()
         except: return ""

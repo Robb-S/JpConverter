@@ -2,7 +2,7 @@ class Converter(object):
     ''' one converter object contains conversion rate, labels, etc. to perform one type of conversion and report results
         methods: conversion result as float, string (to sig digits), string with units, full equation '''
 
-    def __init__(self, convCode, convDisplay, unit1, unit1single, unit2, convFactor, sigDigits, convType):
+    def __init__(self, convCode, convDisplay, unit1, unit1single, unit2, convFactor, sigDigits, convType, unitKanji=""):
         self.convCode = convCode                # e.g. "mi2km"
         self.convDisplay = convDisplay          # e.g. "miles to kilometers"
         self.unit1 = unit1                      # e.g. "miles"
@@ -14,6 +14,14 @@ class Converter(object):
         self.convType = convType                # e.g. "tometric" / "frommetric" / "tojpmeasure" / "fromjpmeasure"
         if self.convCode in ["f2c", "c2f"]: self.unitSpacer = ""        # space before unit name, none if degree sign        
         else: self.unitSpacer = " "
+        self.unitKanji = unitKanji
+
+    def makeColorSpan(self, thecolor):
+        js1c = js2c = ""
+        if thecolor:
+            js1c = '<span style="color:{}">'.format(thecolor)
+            js2c = '</span>'
+        return js1c, js2c
 
     def getAmt2Float(self, amt1):               # return conversion result as floating point
         if self.convCode=="f2c": return (((amt1-32.0)*5.0)/9.0)
@@ -25,16 +33,25 @@ class Converter(object):
         formatstr = "{" + ":.{}f".format(self.sigDigits) + "}"      # e.g. "{:.2f}" for two significant digits
         return formatstr.format(amt2)                               # e.g. "{:.2f}".format(1.77777) -> "1.78"
 
-    def getAmt2StringUnits(self, amt1):                             # conversion result + units
+    def getAmt2StringUnits(self, amt1, thecolor=""):                             # conversion result + units
+        jsc1, jsc2 = self.makeColorSpan(thecolor)
+        if self.unitKanji and self.convType=="tojpmeasure":           # add in kanji after the unit name in English
+            kpart = " (" + jsc1 + self.unitKanji + jsc2 + ")"
+        else: kpart = ""
         amt2str = self.getAmt2String(amt1)
-        return amt2str + self.unitSpacer + self.unit2               # unitSpacer is either "" (for degree sign) or " "
+        return amt2str + self.unitSpacer + self.unit2 + kpart               # unitSpacer is either "" (for degree sign) or " "
 
-    def getAmt1StringUnits(self, amt1):         # amt1 plus units
-        if amt1==1: return str(amt1) + self.unitSpacer + self.unit1single   # not needed for amt2 since it's a float
-        else: return str(amt1) + self.unitSpacer + self.unit1
+    def getAmt1StringUnits(self, amt1, thecolor=""):         # amt1 plus units
+        jsc1, jsc2 = self.makeColorSpan(thecolor)
+        if self.unitKanji and self.convType=="fromjpmeasure":           # add in kanji after the unit name in English
+            kpart = " (" + jsc1 + self.unitKanji + jsc2 + ")"
+        else: kpart = ""
+        if amt1==1: return str(amt1) + self.unitSpacer + self.unit1single + kpart  # not needed for amt2 since it's a float
+        else: return str(amt1) + self.unitSpacer + self.unit1 + kpart
 
-    def getEquation(self, amt1, eqstring=" = "):    # full equation, with optional string for equal sign characters
-        return self.getAmt1StringUnits(amt1) + eqstring + self.getAmt2StringUnits(amt1)
+    def getEquation(self, amt1, eqstring=" = ", thecolor=""):  # full equation, with optional equal sign characters, color for Jp
+        #print ("get equation")
+        return self.getAmt1StringUnits(amt1, thecolor) + eqstring + self.getAmt2StringUnits(amt1, thecolor)
 
     ''' get properties next '''
     def getConvCode(self): return self.convCode
@@ -45,5 +62,6 @@ class Converter(object):
     def getConvFactor(self): return self.convFactor
     def getSigDigits(self): return self.sigDigits
     def getConvType(self): return self.convType
+    def getUnitKanji(self): return self.unitKanji
 
 

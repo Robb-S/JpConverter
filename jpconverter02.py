@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
             for ix, (convCode, convDisplay) in enumerate(oneConvTypeInfo):  # iterate through enumerated list of tuples
                 self.oneRadio = QRadioButton("{}".format(convDisplay))      # text for button 
                 self.oneRadio.setObjectName("object_{}".format(convCode))   # to be used later by sender()
-                self.oneRadio.setStyleSheet(makeStyleSheet("radiobutton",self.uiFileName))  
+                self.oneRadio.setStyleSheet(makeStyleSheet("radiobutton", self.uiFileName))  
                 self.layoutConv.addWidget(self.oneRadio)
                 self.oneRadio.clicked.connect(self.convSetup)               # convSetup will call sender() to find convCode
                 if ix==0: self.oneRadio.setFocus()                          # set focus on first button in list
@@ -154,6 +154,7 @@ class MainWindow(QMainWindow):
         pstart = self.mess.getPstart()                      # get paragraph HTML from Message object
         pstopstart = self.mess.getPstopstart()
         pstop = self.mess.getPstop()
+        jcol = self.mess.getJColor()                        # special color for Japanese text
         if len(self.input1.text())<1:                       # test for blank input
             self.output2.setText(self.mess.getBlankConvertMsg())      # show error message
             self.output2.show()
@@ -161,22 +162,22 @@ class MainWindow(QMainWindow):
         if self.themode in self.convs.getValidConvTypes():  # standard conversions: fromjpmeasure, tometric, etc   
             amt1Text = self.input1.text()
             amt1 = strToNum(amt1Text)                
-            eqString = self.convs.getEquation(self.theConvCode, amt1, " =" + pstopstart)   # paragraph break after =
+            eqString = self.convs.getEquation(self.theConvCode, amt1, " =" + pstopstart, jcol)   # paragraph break after =
             self.output2.setText(pstart + eqString + pstop)   # use paragraphs for better control of appearance
         elif self.themode=="tojpyear":                                  # int'l year to Japanese year
             try:
                 iYear = int(self.input1.text())
-                yearDisplay = self.mess.makeJYearDisplay(self.yc.iYearToJYear(iYear,self.mess.getJColor()), iYear)
+                yearDisplay = self.mess.makeJYearDisplay(self.yc.iYearToJYear(iYear, jcol), iYear)
             except ValueError as errorMsg:
                 yearDisplay = pstart + str(errorMsg) + pstop  # display the error message
             self.output2.setText(yearDisplay)
-            print (yearDisplay)
+            #print (yearDisplay)
         elif self.themode in ["fromjpyear", "fromjpyearhistoric"]:      # Japanese year to int'l year
             jYear = int(self.input1.text())                             # validator at work, so this should be an integer
             try:                                                        # raise exception if not in range
                 iYear = self.yc.jYearToIYear(self.chosenEra, jYear)
                 yearDisplay = pstart +  "{} ({}) {}".format(self.yc.getENameUnparsed(self.chosenEra), \
-                    self.yc.getJName(self.chosenEra, self.mess.getJColor()), jYear) + \
+                    self.yc.getJName(self.chosenEra, jcol), jYear) + \
                     pstopstart + self.mess.getIs() + " " + str(iYear) + pstop
             except ValueError as errorMsg:
                 yearDisplay = pstart + str(errorMsg) + pstop  # display the error message
@@ -185,7 +186,7 @@ class MainWindow(QMainWindow):
             iYear = int(self.input1.text())
             # display is HTML with paragraph, line height, and Japanese characters in color (specified in Mess class)
             yearDisplay = pstart + str(iYear) + " " + self.mess.getIs() + ":" + pstopstart + \
-                self.yc.getZodEJZNames(iYear, self.mess.getJColor()) + pstop
+                self.yc.getZodEJZNames(iYear, jcol) + pstop
             self.output2.setText(yearDisplay)
             #print (yearDisplay)
         self.output2.show()                                             # common to all conversion types
@@ -248,7 +249,7 @@ class MainWindow(QMainWindow):
         self.menubar = self.window.findChild(QMenuBar, 'menubar')
         if self.uiFileName=="main3.ui": self.menubar.setStyleSheet(getMenuStyle("main3.ui"))    # in jpconvhelper.py
 
-    def getParts2(self):  # for when pyside2-uic created the UI. Messy, but the easiest way to combine dev and deployment code
+    def getParts2(self):  # for UI made by  pyside2-uic.  Messy, but still the easiest way to combine dev and deployment code
         self.centralw = self.findChild(QWidget, 'central_widget')
         self.input1 = self.findChild(QLineEdit, 'input1')
         self.output2 = self.findChild(QTextEdit, 'label_output2')
