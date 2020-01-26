@@ -27,4 +27,5 @@ pyinstaller scriptname.py --onefile -w --icon=myicon.ico --clean
 11. move ui file to Users/username/ or wherever the base is.  Use print(os.getcwd()) if needed to.figure it where.
 12. convert UI files to Python files, to facilitate single-file executable (rather than .exe plus .ui files)
 pyside2-uic main1.ui > ui_mainwindow.py
-13. adapt script to use python UI file rather than separate UI file.
+13. adapt script to use python UI file rather than separate UI file (change devMode variable from "development" to "deployment").
+14. repeat step 10.
