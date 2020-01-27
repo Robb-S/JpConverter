@@ -15,29 +15,22 @@ from ui_mainwindow3 import Ui_MainWindow3               # used for deployment ve
 #print ("** current directory: ", os.getcwd())          # use this to figure out where to put UI files during development
 theUIFileName = 'main3.ui'
 devMode = "development"     # quick development, using UI file made directly from QT Designer
-#devMode = "deployment"     # deployment version, using a .py version of the UI file 
+devMode = "deployment"     # deployment version, using a .py version of the UI file 
 
 class MainWindow(QMainWindow):
     def __init__(self, ui_file, devMode, parent=None):       
         super(MainWindow, self).__init__()    
-        #super(Form, self).__init__(parent)
-        #print ("uifile: " , ui_file)
-        if devMode == "development":
-            self.uiFileName = ui_file
+        self.uiFileName = ui_file                           # use this if there are multiple UI files
+        if devMode == "development":                        # use ui file directly made by QDesigner
             uiFile = QFile(ui_file)
             uiFile.open(QFile.ReadOnly)                     # read in UI for the form
             loader = QUiLoader()
             self.window = loader.load(uiFile)
             uiFile.close() 
-            self.getParts()                                 # identify form objects
-        else: #deployment
+        else: #deployment - use .py version of ui file, with slightly different setup
             self.ui = Ui_MainWindow3()
             self.ui.setupUi(self)
-            self.uiFileName = ui_file                       # current ui file, specified in initialization
-            self.getParts2()                                # identify form objects
-        self.doInitialSetup()
-
-    def doInitialSetup(self):
+        self.getParts()                                     # identify form objects
         self.convs = Converters()                       # load converters for main conversion categories
         self.yc = YearConverters()                      # load converters for japanese years, zodiac years
         self.mess = Mess()                              # instructions and messages in local language
@@ -85,11 +78,10 @@ class MainWindow(QMainWindow):
             self.convertUnits()
         if themode=="start": 
             self.btnFromMetric.setFocus()  
-            self.showBigInstructions(themode)
+            self.showBigInstructions(self.mess.getStartMsg2())
 
-    def showBigInstructions(self, themode):
-        if themode=="start": 
-            self.instructions2.setText(self.mess.getStartMsg2())
+    def showBigInstructions(self, themsg):
+        self.instructions2.setText(themsg)
         self.scrollArea.hide()
         self.instructions2.show()
 
@@ -186,9 +178,11 @@ class MainWindow(QMainWindow):
             iYear = int(self.input1.text())
             # display is HTML with paragraph, line height, and Japanese characters in color (specified in Mess class)
             yearDisplay = pstart + str(iYear) + " " + self.mess.getIs() + ":" + pstopstart + \
-                self.yc.getZodEJZNames(iYear, jcol) + pstop
+                self.mess.getYearOfThe().capitalize() + " " + self.yc.getZodEName(iYear) + pstop
             self.output2.setText(yearDisplay)
-            #print (yearDisplay)
+            zBig = self.mess.makeZodiacBigDisplay(self.yc.getZodEName(iYear), 
+                self.yc.getZodJName(iYear, jcol), self.yc.getZodJZName(iYear, jcol))
+            self.showBigInstructions(zBig)
         self.output2.show()                                             # common to all conversion types
 
     def emptyConvLayout(self):                                  # clear the radio buttons in the converter/jpYear layout
@@ -216,72 +210,42 @@ class MainWindow(QMainWindow):
         self.output2.setText(amtString)
 
     def getParts(self):                                                     # map form elements to object properties
-        self.centralw = self.window.findChild(QWidget, 'central_widget')
-        self.input1 = self.window.findChild(QLineEdit, 'input1')
-        self.output2 = self.window.findChild(QTextEdit, 'label_output2')
-        self.header1 = self.window.findChild(QLabel, 'label_header1')
-        self.btnConvert = self.window.findChild(QPushButton, 'button_convert')
-        self.btnExit = self.window.findChild(QPushButton, 'button_exit')
-        self.btnFromMetric = self.window.findChild(QPushButton, 'button_from_metric')
-        self.btnToMetric = self.window.findChild(QPushButton, 'button_to_metric')
-        self.btnFromJpMeasure = self.window.findChild(QPushButton, 'button_from_jpmeasure')
-        self.btnToJpMeasure = self.window.findChild(QPushButton, 'button_to_jpmeasure')
-        self.btnFromJpYear = self.window.findChild(QPushButton, 'button_from_jpyear')
-        self.btnToJpYear = self.window.findChild(QPushButton, 'button_to_jpyear')
-        self.btnZodiac = self.window.findChild(QPushButton, 'button_zodiac')
-        self.scrollArea = self.window.findChild(QScrollArea, 'conv_layout')     
+        self.centralw = self.findWidget(QWidget, 'central_widget')
+        self.input1 = self.findWidget(QLineEdit, 'input1')
+        self.output2 = self.findWidget(QTextEdit, 'label_output2')
+        self.header1 = self.findWidget(QLabel, 'label_header1')
+        self.btnConvert = self.findWidget(QPushButton, 'button_convert')
+        self.btnExit = self.findWidget(QPushButton, 'button_exit')
+        self.btnFromMetric = self.findWidget(QPushButton, 'button_from_metric')
+        self.btnToMetric = self.findWidget(QPushButton, 'button_to_metric')
+        self.btnFromJpMeasure = self.findWidget(QPushButton, 'button_from_jpmeasure')
+        self.btnToJpMeasure = self.findWidget(QPushButton, 'button_to_jpmeasure')
+        self.btnFromJpYear = self.findWidget(QPushButton, 'button_from_jpyear')
+        self.btnToJpYear = self.findWidget(QPushButton, 'button_to_jpyear')
+        self.btnZodiac = self.findWidget(QPushButton, 'button_zodiac')
+        self.scrollArea = self.findWidget(QScrollArea, 'conv_layout')     
         content_widget = QWidget()                          # now add the QVBoxLayout widget programmatically, for scrolling
         self.scrollArea.setWidget(content_widget)
         self.scrollArea.setWidgetResizable(True)
         self.layoutConv = QVBoxLayout(content_widget)           
         self.layoutConv.setAlignment(Qt.AlignTop)           # don't evenly space the radio buttons, but start at the top
-        self.instructions1 = self.window.findChild(QLabel, 'label_instructions1')
-        self.instructions2 = self.window.findChild(QLabel, 'label_instructions2')        
-        self.menuExit = self.window.findChild(QAction, 'action_exit')
-        self.menuFromMetric = self.window.findChild(QAction, 'action_from_metric')
-        self.menuToMetric = self.window.findChild(QAction, 'action_to_metric')
-        self.menuFromJpMeasure = self.window.findChild(QAction, 'action_from_jpmeasure')
-        self.menuToJpMeasure = self.window.findChild(QAction, 'action_to_jpmeasure')
-        self.menuFromJpYear = self.window.findChild(QAction, 'action_from_jpyear')
-        self.menuFromJpYearHistoric = self.window.findChild(QAction, 'action_from_jpyear_historic')
-        self.menuToJpYear = self.window.findChild(QAction, 'action_to_jpyear')
-        self.menuZodiac = self.window.findChild(QAction, 'action_zodiac')
-        self.menubar = self.window.findChild(QMenuBar, 'menubar')
+        self.instructions1 = self.findWidget(QLabel, 'label_instructions1')
+        self.instructions2 = self.findWidget(QLabel, 'label_instructions2')        
+        self.menuExit = self.findWidget(QAction, 'action_exit')
+        self.menuFromMetric = self.findWidget(QAction, 'action_from_metric')
+        self.menuToMetric = self.findWidget(QAction, 'action_to_metric')
+        self.menuFromJpMeasure = self.findWidget(QAction, 'action_from_jpmeasure')
+        self.menuToJpMeasure = self.findWidget(QAction, 'action_to_jpmeasure')
+        self.menuFromJpYear = self.findWidget(QAction, 'action_from_jpyear')
+        self.menuFromJpYearHistoric = self.findWidget(QAction, 'action_from_jpyear_historic')
+        self.menuToJpYear = self.findWidget(QAction, 'action_to_jpyear')
+        self.menuZodiac = self.findWidget(QAction, 'action_zodiac')
+        self.menubar = self.findWidget(QMenuBar, 'menubar')
         if self.uiFileName=="main3.ui": self.menubar.setStyleSheet(getMenuStyle("main3.ui"))    # in jpconvhelper.py
 
-    def getParts2(self):  # for UI made by  pyside2-uic.  Messy, but still the easiest way to combine dev and deployment code
-        self.centralw = self.findChild(QWidget, 'central_widget')
-        self.input1 = self.findChild(QLineEdit, 'input1')
-        self.output2 = self.findChild(QTextEdit, 'label_output2')
-        self.header1 = self.findChild(QLabel, 'label_header1')
-        self.btnConvert = self.findChild(QPushButton, 'button_convert')
-        self.btnExit = self.findChild(QPushButton, 'button_exit')
-        self.btnFromMetric = self.findChild(QPushButton, 'button_from_metric')
-        self.btnToMetric = self.findChild(QPushButton, 'button_to_metric')
-        self.btnFromJpMeasure = self.findChild(QPushButton, 'button_from_jpmeasure')
-        self.btnToJpMeasure = self.findChild(QPushButton, 'button_to_jpmeasure')
-        self.btnFromJpYear = self.findChild(QPushButton, 'button_from_jpyear')
-        self.btnToJpYear = self.findChild(QPushButton, 'button_to_jpyear')
-        self.btnZodiac = self.findChild(QPushButton, 'button_zodiac')
-        self.scrollArea = self.findChild(QScrollArea, 'conv_layout')     
-        content_widget = QWidget()                          # now add the QVBoxLayout widget programmatically, for scrolling
-        self.scrollArea.setWidget(content_widget)
-        self.scrollArea.setWidgetResizable(True)
-        self.layoutConv = QVBoxLayout(content_widget)           
-        self.layoutConv.setAlignment(Qt.AlignTop)           # don't evenly space the radio buttons, but start at the top
-        self.instructions1 = self.findChild(QLabel, 'label_instructions1')
-        self.instructions2 = self.findChild(QLabel, 'label_instructions2')        
-        self.menuExit = self.findChild(QAction, 'action_exit')
-        self.menuFromMetric = self.findChild(QAction, 'action_from_metric')
-        self.menuToMetric = self.findChild(QAction, 'action_to_metric')
-        self.menuFromJpMeasure = self.findChild(QAction, 'action_from_jpmeasure')
-        self.menuToJpMeasure = self.findChild(QAction, 'action_to_jpmeasure')
-        self.menuFromJpYear = self.findChild(QAction, 'action_from_jpyear')
-        self.menuFromJpYearHistoric = self.findChild(QAction, 'action_from_jpyear_historic')
-        self.menuToJpYear = self.findChild(QAction, 'action_to_jpyear')
-        self.menuZodiac = self.findChild(QAction, 'action_zodiac')
-        self.menubar = self.findChild(QMenuBar, 'menubar')
-        if self.uiFileName=="main3.ui": self.menubar.setStyleSheet(getMenuStyle("main3.ui"))    # in jpconvhelper.py
+    def findWidget(self, widgetType, widgetName):
+        if devMode == "development":  return self.window.findChild(widgetType, widgetName)
+        else: return self.findChild(widgetType, widgetName)
 
     def connectParts(self):             # connect buttons and menu actions to operations
         self.input1.returnPressed.connect(self.convertUnits)

@@ -1,4 +1,4 @@
-def makeHeader1(themode, theui="main2.ui"):
+def makeHeader1(themode, theui="main3.ui"):
     ''' return text and stylesheet for header based on mode '''
     titles = {"frommetric": "Convert from metric", "fromjpyear": "Convert from Japanese year", 
         "fromjpyearhistoric": "Convert from Japanese year", 
@@ -6,7 +6,7 @@ def makeHeader1(themode, theui="main2.ui"):
         "tometric": "Convert to Metric", "tojpyear": "Convert to Japanese year", 
         "tojpmeasure": "Convert to Japanese measure", "start": "Choose conversion type"}
     #print (theui)
-    if theui in ["main2.ui", "main1.ui"]:
+    if theui in ["main2.ui", "main1.ui"]:       # used by older version
         if themode in ["frommetric", "fromjpyear", "fromjpyearhistoric", "fromjpmeasure", "zodiac"]: backgroundColor = "#1565c0"
         elif themode in ["start"]: backgroundColor = "#5e5e5e"
         else: backgroundColor = "#0288d1"
@@ -41,6 +41,13 @@ def makeStyleSheet(thestylemode, theui="main2.ui"):
         if theui in ["main1.ui","main2.ui"]: thestyle = "font-size: 17px;padding: 0 0 6px 0;color: #000000;"
         else: thestyle = "font-size: 17px;padding: 0 0 6px 0;color:#ffffff;"
     return thestyle
+
+def makeColorSpan(thecolor):        # start and end tags for color HTML span for Japanese characters
+    js1c = js2c = ""
+    if thecolor:
+        js1c = '<span style="color:{}">'.format(thecolor)
+        js2c = '</span>'
+    return js1c, js2c
 
 def strToNum(numstr):
     try: amt = int(numstr)

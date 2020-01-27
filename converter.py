@@ -1,3 +1,4 @@
+from jpconvhelper import makeColorSpan
 class Converter(object):
     ''' one converter object contains conversion rate, labels, etc. to perform one type of conversion and report results
         methods: conversion result as float, string (to sig digits), string with units, full equation '''
@@ -16,13 +17,6 @@ class Converter(object):
         else: self.unitSpacer = " "
         self.unitKanji = unitKanji
 
-    def makeColorSpan(self, thecolor):
-        js1c = js2c = ""
-        if thecolor:
-            js1c = '<span style="color:{}">'.format(thecolor)
-            js2c = '</span>'
-        return js1c, js2c
-
     def getAmt2Float(self, amt1):               # return conversion result as floating point
         if self.convCode=="f2c": return (((amt1-32.0)*5.0)/9.0)
         elif self.convCode=="c2f": return (((amt1*9.0)/5.0)+32.0)
@@ -34,7 +28,7 @@ class Converter(object):
         return formatstr.format(amt2)                               # e.g. "{:.2f}".format(1.77777) -> "1.78"
 
     def getAmt2StringUnits(self, amt1, thecolor=""):                             # conversion result + units
-        jsc1, jsc2 = self.makeColorSpan(thecolor)
+        jsc1, jsc2 = makeColorSpan(thecolor)
         if self.unitKanji and self.convType=="tojpmeasure":           # add in kanji after the unit name in English
             kpart = " (" + jsc1 + self.unitKanji + jsc2 + ")"
         else: kpart = ""
@@ -42,7 +36,7 @@ class Converter(object):
         return amt2str + self.unitSpacer + self.unit2 + kpart               # unitSpacer is either "" (for degree sign) or " "
 
     def getAmt1StringUnits(self, amt1, thecolor=""):         # amt1 plus units
-        jsc1, jsc2 = self.makeColorSpan(thecolor)
+        jsc1, jsc2 = makeColorSpan(thecolor)
         if self.unitKanji and self.convType=="fromjpmeasure":           # add in kanji after the unit name in English
             kpart = " (" + jsc1 + self.unitKanji + jsc2 + ")"
         else: kpart = ""

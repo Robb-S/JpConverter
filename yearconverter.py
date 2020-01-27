@@ -1,5 +1,6 @@
 import datetime
 from html.parser import HTMLParser
+from jpconvhelper import makeColorSpan
 class YearConverters(object):
     ''' container for era objects, zodiac objects // prop: yDict (eraCode: OneEra), eraCodeAllList (alpha sorted), 
         eraCodeModernList (reverse date sorted), nowEraCode (based on ending year of 0), modernEraStart (1868), 
@@ -67,13 +68,6 @@ class YearConverters(object):
         self.eraCodeModernListSorted = [a[0] for a in sorted(tempEraCodeModernList, key=lambda x: x[1], reverse=True)]
         self.maxYear = self.yDict[self.nowEraCode].getStartYear() + 98        # year 99 fo current era is maxYear
 
-    def makeColorSpan(self, thecolor):
-        js1c = js2c = ""
-        if thecolor:
-            js1c = '<span style="color:{}">'.format(thecolor)
-            js2c = '</span>'
-        return js1c, js2c
-
     def getEraNamesPlusCodes(self, eraType, thecolor=""):
         ''' returns list of tuples for display in radio buttons or dropdown list.  eraType = "modern" or "all" '''
         theEras = []
@@ -85,7 +79,7 @@ class YearConverters(object):
         return theEras
 
     def iYearToJYear(self, iYear, thecolor=""):      # returns list with 0, 1, or 2 tuples of (eName, jName, eraYear)
-        js1c, js2c = self.makeColorSpan(thecolor)    # if thecolor is specified, japanese characters will appear in that color
+        js1c, js2c = makeColorSpan(thecolor)    # if thecolor is specified, japanese characters will appear in that color
         jYears1 = []            # fill with one or two tuples of (startYear, eraCode) for matching era(s), then sort it
         jYears2 = []            # fill with one or two tuples of (eName, jName, eraYear)
         if not iYear in range(self.minYear, self.maxYear+1): 
@@ -115,7 +109,7 @@ class YearConverters(object):
     def getEName(self, eraCode): return self.yDict[eraCode].getEName()
     def getENameUnparsed(self, eraCode): return self.yDict[eraCode].getENameUnparsed()
     def getJName(self, eraCode, thecolor=""): 
-        js1c, js2c = self.makeColorSpan(thecolor)     
+        js1c, js2c = makeColorSpan(thecolor)     
         return js1c + self.yDict[eraCode].getJName() + js2c
     def getStartYear(self, eraCode): return self.yDict[eraCode].getStartYear()
     def getEndYear(self, eraCode): return self.yDict[eraCode].getEndYear()
@@ -142,14 +136,14 @@ class YearConverters(object):
 
     def getZodEName(self, theyear): return self.zFromYearDict[theyear%12].getEName()
     def getZodJName(self, theyear, thecolor=""): # returns span with Japanese characters in color, if specified by parameter
-        js1c, js2c = self.makeColorSpan(thecolor)        
+        js1c, js2c = makeColorSpan(thecolor)        
         return js1c + self.zFromYearDict[theyear%12].getJName() + js2c
     def getZodJZName(self, theyear, thecolor=""): # Japanese characters in color, if specified
-        js1c, js2c = self.makeColorSpan(thecolor)        
+        js1c, js2c = makeColorSpan(thecolor)        
         return js1c + self.zFromYearDict[theyear%12].getJZName() + js2c
     def getZodEJZNames(self, theyear, thecolor=""): # Japanese characters in color if it's specified
-        js1c, js2c = self.makeColorSpan(thecolor)
-        ans = "Year of the "+ self.zFromYearDict[theyear%12].getEName() + " " + \
+        js1c, js2c = makeColorSpan(thecolor)
+        ans = "Year of the " + self.zFromYearDict[theyear%12].getEName() + " " + \
             js1c + self.zFromYearDict[theyear%12].getJName() + js2c + \
             " (" + js1c + self.zFromYearDict[theyear%12].getJZName() + js2c + ")"
         return ans

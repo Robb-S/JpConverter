@@ -16,13 +16,16 @@ class Mess(object):
         startMsg2Text = "Press one of the buttons on the right to see the available conversion units."
         self.startMsg2 = paraTemp.format(startMsg2Text)
         self.theWordIs = "is"
+        self.animal = "animal"
+        self.zYear = "zodiac year"
+        self.yearofthe = "year of the"
 
     def getLanguage(self): return self.language
     def getEnterAmt(self): return self.enterAmt
     def getEnterYearZodiac(self): return self.enterYearZodiac
     def getFromJpYear(self, param1): return self.fromJpYearTemp.format(param1)
     def getToJpYear(self, param1): return self.toJpYearTemp.format(param1)
-    def getCouldNotParse(self, param1): return self.countNotParseTemp.format(param1)
+    def getCouldNotParse(self, param1): return self.couldNotParseTemp.format(param1)
     def getBlankConvertMsg(self): return self.blankConvertMsg
     def getPstop(self): return self.pstop
     def getPstopstart(self): return self.pstopstart
@@ -30,9 +33,12 @@ class Mess(object):
     def getStartMsg2(self): return self.startMsg2
     def getIs(self): return self.theWordIs
     def getJColor(self): return self.kanjiColor
+    def getYearOfThe(self): return self.yearofthe
+    #def getAnimal(self): return self.animal
+    #def getZYear(self): return self.zYear
 
     def makeJYearDisplay(self, listOfJYearTuples, iYear):   # this may be have multiple Japanese era years
-        if len(listOfJYearTuples) == 0: return self.mess.getCouldNotParse(str(iYear))  # does this ever happen?  
+        if len(listOfJYearTuples) == 0: return self.getCouldNotParse(str(iYear))  # does this ever happen?  
         ansDisp = str(iYear) + " is: "
         lineNum = 1
         for eName, jName, eraYear in listOfJYearTuples:
@@ -41,4 +47,11 @@ class Mess(object):
             lineNum +=1 
         return self.pstart + ansDisp + self.pstop               # need to use paragraphs for proper line height control    
 
+    def makeZodiacBigDisplay(self, eName, jName, jZName): 
+        bigZ = '<p style="font-size:16px;">' + self.yearofthe.capitalize() + " " + eName + '</p>' + \
+            '<p style = "font-size: 40px;">' + jName + '</p>'  + \
+            '<p style="font-size:13px; text-align: left;">('+ self.animal + ')</p>'  + \
+            '<p style = "font-size: 40px;">' + jZName + '</p>'  + \
+            '<p style="font-size:13px; text-align: left;">('+ self.zYear + ')</p>'          
+        return bigZ
 
