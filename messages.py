@@ -18,7 +18,8 @@ class Mess(object):
         self.theWordIs = "is"
         self.animal = "animal"
         self.zYear = "zodiac year"
-        self.yearofthe = "year of the"
+        self.yearOfThe = "year of the"
+        self.tooColdError = "Brrr, that's too cold!"        # error msg for temperatures below absolute zero
 
     def getLanguage(self): return self.language
     def getEnterAmt(self): return self.enterAmt
@@ -33,7 +34,8 @@ class Mess(object):
     def getStartMsg2(self): return self.startMsg2
     def getIs(self): return self.theWordIs
     def getJColor(self): return self.kanjiColor
-    def getYearOfThe(self): return self.yearofthe
+    def getYearOfThe(self): return self.yearOfThe
+    def getTooCold(self): return self.tooColdError
     #def getAnimal(self): return self.animal
     #def getZYear(self): return self.zYear
 

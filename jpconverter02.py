@@ -15,7 +15,7 @@ from ui_mainwindow3 import Ui_MainWindow3               # used for deployment ve
 #print ("** current directory: ", os.getcwd())          # use this to figure out where to put UI files during development
 theUIFileName = 'main3.ui'
 devMode = "development"     # quick development, using UI file made directly from QT Designer
-devMode = "deployment"     # deployment version, using a .py version of the UI file 
+#devMode = "deployment"     # deployment version, using a .py version of the UI file 
 
 class MainWindow(QMainWindow):
     def __init__(self, ui_file, devMode, parent=None):       
@@ -125,7 +125,7 @@ class MainWindow(QMainWindow):
 
     def setUpValidator(self):
         if self.themode in self.convs.getValidConvTypes():              # measures
-            if self.convs.isTempConv(self.theConvCode): self.validFloat.setBottom(-460)    # temperatures can be negative
+            if self.convs.isTempConv(self.theConvCode): self.validFloat.setBottom(-999999)    # temperatures can be negative
             else: self.validFloat.setBottom(0.0)                        # other measures can't be negative
             self.input1.setValidator(self.validFloat)  
         if self.themode in ["fromjpyear","fromjpyearhistoric", "tojpyear", "zodiac"]:
@@ -153,8 +153,9 @@ class MainWindow(QMainWindow):
             return
         if self.themode in self.convs.getValidConvTypes():  # standard conversions: fromjpmeasure, tometric, etc   
             amt1Text = self.input1.text()
-            amt1 = strToNum(amt1Text)                
-            eqString = self.convs.getEquation(self.theConvCode, amt1, " =" + pstopstart, jcol)   # paragraph break after =
+            amt1 = strToNum(amt1Text)         
+            if self.convs.isTooCold(self.theConvCode, amt1): eqString = self.mess.getTooCold() #check for temp below abs zero
+            else: eqString = self.convs.getEquation(self.theConvCode, amt1, " =" + pstopstart, jcol) 
             self.output2.setText(pstart + eqString + pstop)   # use paragraphs for better control of appearance
         elif self.themode=="tojpyear":                                  # int'l year to Japanese year
             try:

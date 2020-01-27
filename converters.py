@@ -19,6 +19,8 @@ class Converters(object):
 
     def loadBaseConverters(self):           # this can alternatively be done from external file
         self.tempConvCodes = ["c2f", "f2c"] # these can use negative numbers
+        self.minimumCentigrade = -274
+        self.minimumFahrenheit = -460
         convTuples = [
 			("c2f", "°C to °F", "°C", "", "°F", 0.0, 1, "frommetric"),
 			("km2mi", "kilometers to miles", "kilometers", "kilometer", "miles", 0.621371, 2, "frommetric"),
@@ -64,6 +66,12 @@ class Converters(object):
             
     def isTempConv(self, convCode):
         return convCode in self.tempConvCodes
+
+    def isTooCold(self, convCode, amt1):
+        if not (self.isTempConv(convCode)): return False
+        if ((convCode == "c2f") and (amt1<self.minimumCentigrade)): return True
+        if ((convCode == "f2c") and (amt1<self.minimumFahrenheit)): return True
+        return False
 
     def makeConvTypeToConvDicts(self):                              # make both dictionaries at the same time
         self.clearConvTypeDicts()                                   # clear them first just to be safe
