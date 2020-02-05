@@ -9,13 +9,13 @@ from jpconvhelper import makeHeader1, makeStyleSheet, strToNum, getMenuStyle
 from converters import *
 from yearconverter import *
 from messages import *
-from ui_mainwindow3 import Ui_MainWindow3               # used for deployment version
+from ui_mainwindow3 import Ui_MainWindow                # used for deployment version
 
 #import os
 #print ("** current directory: ", os.getcwd())          # use this to figure out where to put UI files during development
 theUIFileName = 'main3.ui'
 devMode = "development"     # quick development, using UI file made directly from QT Designer
-#devMode = "deployment"     # deployment version, using a .py version of the UI file 
+devMode = "deployment"     # deployment version, using a .py version of the UI file 
 
 class MainWindow(QMainWindow):
     def __init__(self, ui_file, devMode, parent=None):       
@@ -28,13 +28,13 @@ class MainWindow(QMainWindow):
             self.window = loader.load(uiFile)
             uiFile.close() 
         else: #deployment - use .py version of ui file, with slightly different setup
-            self.ui = Ui_MainWindow3()
+            self.ui = Ui_MainWindow()
             self.ui.setupUi(self)
-        self.getParts()                                     # identify form objects
+        self.getParts()                                 # identify form objects
+        self.connectParts()                             # connect buttons to operations
         self.convs = Converters()                       # load converters for main conversion categories
         self.yc = YearConverters()                      # load converters for japanese years, zodiac years
         self.mess = Mess()                              # instructions and messages in local language
-        self.connectParts()                             # connect buttons to operations
         self.validFloat = QDoubleValidator()
         self.validYear = QIntValidator()
         self.validYear.setRange(1,9999)                 # used for years       

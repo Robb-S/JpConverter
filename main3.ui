@@ -63,7 +63,7 @@
     <bool>false</bool>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: #607D8B;</string>
+    <string notr="true">background-color: #818489;</string>
    </property>
    <widget class="QPushButton" name="button_convert">
     <property name="geometry">

@@ -3,14 +3,14 @@
 # Form implementation generated from reading ui file 'main3.ui',
 # licensing of 'main3.ui' applies.
 #
-# Created: Sat Jan 25 21:54:58 2020
+# Created: Wed Feb  5 15:05:17 2020
 #      by: pyside2-uic  running on PySide2 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
-class Ui_MainWindow3(object):
+class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(846, 411)
@@ -32,7 +32,7 @@ class Ui_MainWindow3(object):
         font.setFamily("Arial")
         self.central_widget.setFont(font)
         self.central_widget.setAutoFillBackground(False)
-        self.central_widget.setStyleSheet("background-color: #607D8B;")
+        self.central_widget.setStyleSheet("background-color: #818489;")
         self.central_widget.setObjectName("central_widget")
         self.button_convert = QtWidgets.QPushButton(self.central_widget)
         self.button_convert.setGeometry(QtCore.QRect(730, 190, 105, 51))
