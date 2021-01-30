@@ -50,7 +50,7 @@ class Mess(object):
         return self.pstart + ansDisp + self.pstop               # need to use paragraphs for proper line height control    
 
     def makeZodiacBigDisplay(self, eName, jName, jZName): 
-        bigZ = '<p style="font-size:16px;">' + self.yearofthe.capitalize() + " " + eName + '</p>' + \
+        bigZ = '<p style="font-size:16px;">' + self.yearOfThe.capitalize() + " " + eName + '</p>' + \
             '<p style = "font-size: 40px;">' + jName + '</p>'  + \
             '<p style="font-size:13px; text-align: left;">('+ self.animal + ')</p>'  + \
             '<p style = "font-size: 40px;">' + jZName + '</p>'  + \
